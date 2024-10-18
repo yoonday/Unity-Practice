@@ -12,7 +12,9 @@ public class Rocket : MonoBehaviour
     public string sceneName = "RocketLauncher";
 
     private Rigidbody2D _rb2d;
-    private float fuel = 100f;
+    private float fuel = 100f; // 연료바 초기 (최대값)
+    private float currentFuel;
+    private float addedFuel = 10f; // 프레임마다 더해줄 양
     
     private readonly float SPEED = 5f;
     private readonly float FUELPERSHOOT = 10f;
@@ -22,11 +24,15 @@ public class Rocket : MonoBehaviour
 
     public float maxDistance = 0;
 
+    public Image fuelBar; // 연료바 이미지 연결
+    
+
 
     void Awake()
     {
-        // TODO : Rigidbody2D 컴포넌트를 가져옴(캐싱)
-        _rb2d = GetComponent<Rigidbody2D>(); // 요구사항 
+        _rb2d = GetComponent<Rigidbody2D>(); // Q1. 요구사항 1 
+        currentFuel = fuel; // 값 설정
+
         if (PlayerPrefs.HasKey("HighScore")) // 최고 점수가 있다면
         {
             float best = PlayerPrefs.GetFloat("HighScore"); // 저장되어있는 최고 점수
@@ -69,25 +75,38 @@ public class Rocket : MonoBehaviour
             PlayerPrefs.Save();
             highScoreTxt.text = $"HIGH : {highScore} M";
         }
-        
+
+
+        AddingFuel(); // 프레임별 연료 추가
+
     }
 
 
-    public void Shoot()
+    public void Shoot()  
     {
-        // TODO : fuel이 넉넉하면 윗 방향으로 SPEED만큼의 힘으로 점프, 모자라면 무시
-        if ( 0f < fuel && fuel <= 100f)
+        if ( 0f < fuel && fuel <= 100f) // Q1. 요구사항 2 : fuel이 넉넉하면 윗 방향으로 SPEED만큼의 힘으로 점프, 모자라면 무시
         {
             _rb2d.AddForce(transform.up * SPEED, ForceMode2D.Impulse);
-            fuel -= FUELPERSHOOT; // 요구사항 2
-            Debug.Log("fuel" +  fuel); // 연료 확인용
+            currentFuel -= FUELPERSHOOT;
+            Debug.Log("fuel" + currentFuel); // 현재연료 확인용
+            ConsumedFuel(); // 연료바에 적용
         }
 
     }
 
-    public void RestartGame()
+    public void RestartGame() // Q2. 요구사항 3 : 버튼 클릭시 재시작
     {
         SceneManager.LoadScene("RocketLauncher");
         Debug.Log("재시작");
+    }
+
+    public void ConsumedFuel() // Q3.요구사항 2 연료바 fillamount 변경
+    {
+        fuelBar.fillAmount = currentFuel / fuel; 
+    }
+
+    public void AddingFuel() // Q3.요구사항 3. 프레임마다 0.1씩 연료 추가
+    {
+        fuelBar.fillAmount += addedFuel * Time.deltaTime / fuel;
     }
 }

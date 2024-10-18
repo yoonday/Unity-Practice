@@ -92,6 +92,14 @@ public class Rocket : MonoBehaviour
 
     public void AddingFuel() // Q3.요구사항 3. 프레임마다 0.1씩 연료 추가
     {
+        currentFuel += addedFuel * Time.deltaTime;
+
+        // currentFuel이 최대치를 넘지 않도록 설정
+        if (currentFuel > fuel)
+        {
+            currentFuel = fuel;
+        }
+
         fuelBar.fillAmount += addedFuel * Time.deltaTime / fuel;
     }
 

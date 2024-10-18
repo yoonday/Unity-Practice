@@ -33,31 +33,16 @@ public class Rocket : MonoBehaviour
         _rb2d = GetComponent<Rigidbody2D>(); // Q1. 요구사항 1 
         currentFuel = fuel; // 값 설정
 
-        if (PlayerPrefs.HasKey("HighScore")) // 최고 점수가 있다면
-        {
-            float best = PlayerPrefs.GetFloat("HighScore"); // 저장되어있는 최고 점수
-            highScoreTxt.text = $"HIGH : {best} M";
-        }
+        InitializeBestScore(); // 최고 기록 설정 후 시작
 
     }
 
     private void Update()
-    {   
+    {
         // 거리 계산
-        float distance = Vector2.Distance(rocket.position, ground.position);
-        
-        if (distance > maxDistance) // 거리 갱신
-        {
-            maxDistance = distance;
-        }
+        CalculateDistance();
+        int highScore = (int)maxDistance; 
 
-        int currentScore = (int)distance;
-        int highScore = (int)maxDistance;
-        
-        // 현재 스코어 표시
-        currentScoreTxt.text = $"{currentScore} M";
-
-      
         // 최고 점수
         if (PlayerPrefs.HasKey("HighScore")) // 최고 점수가 있다면
         {
@@ -84,7 +69,7 @@ public class Rocket : MonoBehaviour
 
     public void Shoot()  
     {
-        if ( 0f < fuel && fuel <= 100f) // Q1. 요구사항 2 : fuel이 넉넉하면 윗 방향으로 SPEED만큼의 힘으로 점프, 모자라면 무시
+        if ( 0f < currentFuel && currentFuel <= 100f) // Q1. 요구사항 2 : fuel이 넉넉하면 윗 방향으로 SPEED만큼의 힘으로 점프, 모자라면 무시
         {
             _rb2d.AddForce(transform.up * SPEED, ForceMode2D.Impulse);
             currentFuel -= FUELPERSHOOT;
@@ -108,5 +93,29 @@ public class Rocket : MonoBehaviour
     public void AddingFuel() // Q3.요구사항 3. 프레임마다 0.1씩 연료 추가
     {
         fuelBar.fillAmount += addedFuel * Time.deltaTime / fuel;
+    }
+
+    public void InitializeBestScore()
+    {
+        if (PlayerPrefs.HasKey("HighScore")) // 최고 점수가 있다면
+        {
+            float best = PlayerPrefs.GetFloat("HighScore"); // 저장되어있는 최고 점수
+            highScoreTxt.text = $"HIGH : {best} M";
+        }
+    }
+
+    public void CalculateDistance() // 거리 계산
+    {
+        float distance = Vector2.Distance(rocket.position, ground.position);
+
+        if (distance > maxDistance) // 거리 갱신
+        {
+            maxDistance = distance;
+        }
+
+        int currentScore = (int)distance;
+        
+        // 현재 스코어 표시
+        currentScoreTxt.text = $"{currentScore} M";
     }
 }
